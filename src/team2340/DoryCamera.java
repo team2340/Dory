@@ -50,6 +50,7 @@ public class DoryCamera {
         percentOfImageHigh = SmartDashboard.getDouble(DoryDefinitions.IP_PERCENT_OF_IMAGE_HIGH, DoryDefinitions.IP_PERCENT_OF_IMAGE_HIGH_INITIAL);
         
         camera = AxisCamera.getInstance();
+        
     }
 
     private void updateValues() {

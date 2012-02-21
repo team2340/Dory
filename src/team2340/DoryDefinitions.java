@@ -113,7 +113,7 @@ public class DoryDefinitions {
     
     // analog channels
     public final static int SONIC_SENSOR_ANALOG_CHANNEL = 2;
-    public final static int GYRO_SENSOR_CHANNEL = 2;
+    public final static int GYRO_SENSOR_CHANNEL = 1;
     
     // buttons
     public final static int BUTTON_X = 1;

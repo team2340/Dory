@@ -10,6 +10,8 @@ package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.io.IOException;
 import team2340.*;
 
 /**
@@ -32,15 +34,24 @@ public class RobotTemplate extends SimpleRobot {
     DoryCamera camera;
     SonicSensor sonicSensor;
     GyroSensor gyroSensor;
+    DoryLogger logger;
+    
     
     protected void robotInit() {
+        
         System.out.println("Commander Dory reporting for duty!");
+        try {
+            logger = new DoryLogger();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
         driveController = new LogitechF310(DoryDefinitions.DRIVE_CONTROLLER, 1);
-        driveController.init();
+        camera = new DoryCamera();
+        /*driveController.init();
         shooterController = new LogitechF310(DoryDefinitions.SHOOTER_CONTROLLER, 2);
         shooterController.init();
         
-        camera = new DoryCamera();
+        
         sonicSensor = new SonicSensor(DoryDefinitions.SONIC_SENSOR_ANALOG_CHANNEL);
         gyroSensor = new GyroSensor(DoryDefinitions.GYRO_SENSOR_CHANNEL);
         
@@ -55,22 +66,31 @@ public class RobotTemplate extends SimpleRobot {
         turret.init();
         ballCollection.init();
         arm.init();
+        
+        */
     }
 
     protected void disabled() {
+        logger.close();
+        /*
         drive.disable();
         shooter.disable();
         turret.disable();
         ballCollection.disable();
         arm.disable();
+        * 
+        */
     }
 
     void enable() {
+        /*
         drive.enable();
         shooter.enable();
         turret.enable();
         ballCollection.enable();
         arm.enable();
+        * */
+        
     }
 
     /**
@@ -84,7 +104,7 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
-        enable();
+        //enable();
         System.out.println("operator control - go!");
         while (isEnabled() && isOperatorControl()) {
             Timer.delay(0.02);
