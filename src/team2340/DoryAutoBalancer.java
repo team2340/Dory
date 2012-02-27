@@ -4,6 +4,7 @@
  */
 package team2340;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 
 /**
@@ -24,7 +25,7 @@ public class DoryAutoBalancer extends DoryBase {
     }
 
     public void run() {
-        System.out.println("DoryArm thread started!");
+        System.out.println("DoryAutoBalancer thread started!");
         while (runner.isAlive()) {
             if (isEnabled()) {
                 if (controller.getLT())
@@ -46,9 +47,15 @@ public class DoryAutoBalancer extends DoryBase {
     }
 
     private void AutoBalance() {
+        int angle = gyro.get360Angle();
+        logger.log("Starting Angle", angle);
         while (gyro.get360Angle() == 0) {
+            if (angle > 0) {
             goForward();
+            }
+            else if (angle < 0) {
             goBackward();       
+            }
         }
         stop();
     }
@@ -57,15 +64,22 @@ public class DoryAutoBalancer extends DoryBase {
     }
 
     private void goForward() {
+        logger.log("Go Forward");
         driveSystem.drive(new Direction(0, .25));
+        Timer.delay(.2);
+        
+        
     }
 
     private void goBackward() {
+        logger.log("Go Backwards");
         driveSystem.drive(new Direction(0, -.25));
+        Timer.delay(.2);
                 
     }
 
     private void stop() {
+        logger.log("Stop" );
         driveSystem.stop();
     }
 }

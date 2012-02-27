@@ -22,74 +22,68 @@ import team2340.*;
  * directory.
  */
 public class RobotTemplate extends SimpleRobot {
-
     
     LogitechF310 driveController;
     LogitechF310 shooterController;
     DoryDrive drive;
     DoryShooter shooter;
     DoryTurret turret;
+    
     DoryBallCollection ballCollection;
-    DoryArm arm;
-    DoryCamera camera;
-    SonicSensor sonicSensor;
-    GyroSensor gyroSensor;
+    //DoryArm arm;
+    //DoryCamera camera;
+    //SonicSensor sonicSensor;
+    //GyroSensor gyroSensor;
     DoryLogger logger;
     
     
     protected void robotInit() {
         
         System.out.println("Commander Dory reporting for duty!");
-        try {
-            logger = new DoryLogger();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        logger = DoryLogger.getInstance();
         driveController = new LogitechF310(DoryDefinitions.DRIVE_CONTROLLER, 1);
-        camera = new DoryCamera();
-        /*driveController.init();
+//        camera = new DoryCamera();
+        driveController.init();
         shooterController = new LogitechF310(DoryDefinitions.SHOOTER_CONTROLLER, 2);
         shooterController.init();
+//        
         
-        
-        sonicSensor = new SonicSensor(DoryDefinitions.SONIC_SENSOR_ANALOG_CHANNEL);
-        gyroSensor = new GyroSensor(DoryDefinitions.GYRO_SENSOR_CHANNEL);
-        
-        drive = new DoryDrive(driveController);
-        shooter = new DoryShooter(shooterController, camera, sonicSensor);
-        turret = new DoryTurret(shooterController);
+//        sonicSensor = new SonicSensor(DoryDefinitions.SONIC_SENSOR_ANALOG_CHANNEL);
+//        gyroSensor = new GyroSensor(DoryDefinitions.GYRO_SENSOR_CHANNEL);
+//        
+        //drive = new DoryDrive(driveController);
+        shooter = new DoryShooter(shooterController);//, camera, sonicSensor);
+      //  turret = new DoryTurret(shooterController);
         ballCollection = new DoryBallCollection(driveController);
-        arm = new DoryArm(shooterController);
-        
-        drive.init();
+//        arm = new DoryArm(shooterController);
+//        
+        //drive.init();
         shooter.init();
-        turret.init();
+      //  turret.init();
         ballCollection.init();
-        arm.init();
+//        arm.init();
+//        
         
-        */
     }
 
     protected void disabled() {
         logger.close();
-        /*
-        drive.disable();
+       
+        //drive.disable();
         shooter.disable();
-        turret.disable();
+        //turret.disable();
         ballCollection.disable();
-        arm.disable();
-        * 
-        */
+//        arm.disable();
+//     
     }
 
     void enable() {
-        /*
-        drive.enable();
-        shooter.enable();
-        turret.enable();
+       // drive.enable();
+       shooter.enable();
+       // turret.enable();
         ballCollection.enable();
-        arm.enable();
-        * */
+//        arm.enable();
+//        
         
     }
 
@@ -104,7 +98,7 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
-        //enable();
+        enable();
         System.out.println("operator control - go!");
         while (isEnabled() && isOperatorControl()) {
             Timer.delay(0.02);

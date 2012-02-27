@@ -19,6 +19,7 @@ public class DoryDefinitions {
     public final static String DORY_CAMERA = "Dory Camera";
     public final static String DORY_SONIC_SENSOR = "Dory Sonic Sensor";
     public final static String DORY_GYRO_SENSOR = "Dory Gyro Sensor";
+    public final static String DORY_AUTO_BALANCER = "Dory Auto Bridge Balancer";
     
     // smart dashboard names
     public static final String DRIVE_DIFFERENTIAL = "Drive PID: Differential";
@@ -99,17 +100,17 @@ public class DoryDefinitions {
     public static final double IP_PERCENT_OF_IMAGE_HIGH_INITIAL = 18.2;
     
     // can jag ids
-    public final static int FRONTRIGHT_DRIVE_JAG_ID = 1;
-    public final static int FRONTLEFT_DRIVE_JAG_ID = 2;
-    public final static int BACKRIGHT_DRIVE_JAG_ID = 3;
+    public final static int FRONTRIGHT_DRIVE_JAG_ID = 8;
+    public final static int FRONTLEFT_DRIVE_JAG_ID = 10;
+    public final static int BACKRIGHT_DRIVE_JAG_ID = 6;
     public final static int BACKLEFT_DRIVE_JAG_ID = 4;
-    public final static int SHOOTER_RIGHTWHEEL_JAG_ID = 5;
-    public final static int SHOOTER_LEFTWHEEL_JAG_ID = 6;
-    public final static int SHOOTER_FLIPPER_JAG_ID = 7;
-    public final static int TURRET_JAG_ID = 8;
-    public final static int TOP_ANEMONE_JAG_ID = 9;
-    public final static int BOTTOM_ANEMONE_JAG_ID = 10;
-    public final static int ARM_JAG_ID = 11;
+    public final static int SHOOTER_RIGHTWHEEL_JAG_ID = 11;
+    public final static int SHOOTER_LEFTWHEEL_JAG_ID = 12;
+    public final static int SHOOTER_FLIPPER_JAG_ID = 13;
+    public final static int TURRET_JAG_ID = 7;
+    public final static int TOP_ANEMONE_JAG_ID = 5;
+    public final static int BOTTOM_ANEMONE_JAG_ID = 9;
+    public final static int ARM_JAG_ID = 3;
     
     // analog channels
     public final static int SONIC_SENSOR_ANALOG_CHANNEL = 2;

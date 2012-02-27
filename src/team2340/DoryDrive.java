@@ -43,9 +43,76 @@ public class DoryDrive extends DoryBase {
         backRight = initializeCANJag(DoryDefinitions.BACKRIGHT_DRIVE_JAG_ID, DoryDefinitions.CPR360);
     }
 
+    private void directionalDrive(Direction direction) throws CANTimeoutException {
+        double mag = Math.sqrt(direction.y * direction.y + direction.x * direction.x);
+        SmartDashboard.putDouble("Driving direction.x", direction.x);
+        SmartDashboard.putDouble("Driving direction.y", direction.y);
+
+        if (direction.y > 0 && direction.x == 0) {
+            // Forward
+            frontRight.setX(direction.y);
+            frontLeft.setX(-1 * direction.y);
+            backRight.setX(direction.y);
+            backLeft.setX(-1 * direction.y);
+        } else if (direction.y > 0 && direction.x > 0) {
+            // 45 diagional front right
+            frontRight.setX(0);
+            frontLeft.setX(mag * -1);
+            backRight.setX(mag);
+            backLeft.setX(0);
+        } else if (direction.y == 0 && direction.x > 0) {
+            frontRight.setX(direction.x * -1);
+            frontLeft.setX(-1 * direction.x);
+            backRight.setX(direction.x);
+            backLeft.setX(direction.x);
+        } else if (direction.y < 0 && direction.x > 0) {
+            frontRight.setX(mag);
+            frontLeft.setX(0);
+            backRight.setX(0);
+            backLeft.setX(mag * -1);
+        } else if (direction.y < 0 && direction.x == 0) {
+            frontRight.setX(direction.y);
+            frontLeft.setX(direction.y * -1);
+            backRight.setX(direction.y);
+            backLeft.setX(direction.y * -1);
+        } else if (direction.y < 0 && direction.x < 0) {
+            frontRight.setX(0);
+            frontLeft.setX(mag * -1);
+            backRight.setX(mag);
+            backLeft.setX(0);
+        } else if (direction.y == 0 && direction.x < 0) {
+            frontRight.setX(direction.x * -1);
+            frontLeft.setX(direction.x * -1);
+            backRight.setX(direction.x);
+            backLeft.setX(direction.x);
+        } else if (direction.x < 0 && direction.y > 0) {
+            frontRight.setX(mag * -1);
+            frontLeft.setX(0);
+            backRight.setX(0);
+            backLeft.setX(mag);
+        } else if (controller.getDPad().getX() > 0) {
+            frontRight.setX(-1);
+            frontLeft.setX(-1);
+            backRight.setX(-1);
+            backLeft.setX(-1);
+        } else if (controller.getDPad().getX() < 0) {
+            frontRight.setX(1);
+            frontLeft.setX(1);
+            backRight.setX(1);
+            backLeft.setX(1);
+        } else {
+            frontRight.setX(0);
+            frontLeft.setX(0);
+            backRight.setX(0);
+            backLeft.setX(0);
+        }
+    }
+
     private CANJaguar initializeCANJag(int id, int clicksPerRev) {
         CANJaguar canJag = null;
         try {
+            canJag = new CANJaguar(id);
+            /*
             canJag = new CANJaguar(id, CANJaguar.ControlMode.kSpeed);
             canJag.configEncoderCodesPerRev(clicksPerRev);
             canJag.setPID(p, i, d);
@@ -54,7 +121,8 @@ public class DoryDrive extends DoryBase {
             canJag.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
             canJag.enableControl();
             canJag.configNeutralMode(CANJaguar.NeutralMode.kCoast);
-        } catch (CANTimeoutException ex) {
+  */
+  } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
         return canJag;
@@ -65,12 +133,12 @@ public class DoryDrive extends DoryBase {
         while (runner.isAlive()) {
             if (isEnabled()) {
                 try {
-                    updatePID();
+         //           updatePID();
                     drive();
                     runner.sleep(20);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
-                }   
+                }
             } else {
                 try {
                     frontRight.setX(0);
@@ -108,69 +176,8 @@ public class DoryDrive extends DoryBase {
     private void drive() {
         try {
             Direction direction = rangeCheck(controller.getRightStick());
-            double mag = Math.sqrt(direction.y * direction.y + direction.x * direction.x);
-
-            SmartDashboard.putDouble("Driving direction.x", direction.x);
-            SmartDashboard.putDouble("Driving direction.y", direction.y);
-
-            if (direction.y > 0 && direction.x == 0) {
-                // Forward
-                frontRight.setX(direction.y);
-                frontLeft.setX(-1 * direction.y);
-                backRight.setX(direction.y);
-                backLeft.setX(-1 * direction.y);
-            } else if (direction.y > 0 && direction.x > 0) {
-                // 45 diagional front right
-                frontRight.setX(0);
-                frontLeft.setX(mag * -1);
-                backRight.setX(mag);
-                backLeft.setX(0);
-            } else if (direction.y == 0 && direction.x > 0) {
-                frontRight.setX(direction.x * -1);
-                frontLeft.setX(-1 * direction.x);
-                backRight.setX(direction.x);
-                backLeft.setX(direction.x);
-            } else if (direction.y < 0 && direction.x > 0) {
-                frontRight.setX(mag);
-                frontLeft.setX(0);
-                backRight.setX(0);
-                backLeft.setX(mag * -1);
-            } else if (direction.y < 0 && direction.x == 0) {
-                frontRight.setX(direction.y);
-                frontLeft.setX(direction.y * -1);
-                backRight.setX(direction.y);
-                backLeft.setX(direction.y * -1);
-            } else if (direction.y < 0 && direction.x < 0) {
-                frontRight.setX(0);
-                frontLeft.setX(mag * -1);
-                backRight.setX(mag);
-                backLeft.setX(0);
-            } else if (direction.y == 0 && direction.x < 0) {
-                frontRight.setX(direction.x * -1);
-                frontLeft.setX(direction.x * -1);
-                backRight.setX(direction.x);
-                backLeft.setX(direction.x);
-            } else if (direction.x < 0 && direction.y > 0) {
-                frontRight.setX(mag * -1);
-                frontLeft.setX(0);
-                backRight.setX(0);
-                backLeft.setX(mag);
-            } else if (controller.getDPad().getX() > 0) {
-                frontRight.setX(-1);
-                frontLeft.setX(-1);
-                backRight.setX(-1);
-                backLeft.setX(-1);
-            } else if (controller.getDPad().getX() < 0) {
-                frontRight.setX(1);
-                frontLeft.setX(1);
-                backRight.setX(1);
-                backLeft.setX(1);
-            } else {
-                frontRight.setX(0);
-                frontLeft.setX(0);
-                backRight.setX(0);
-                backLeft.setX(0);
-            }
+            
+            directionalDrive(direction);
 
             if (controller.getRB()) {
                 frontRight.configNeutralMode(CANJaguar.NeutralMode.kBrake);
@@ -204,5 +211,20 @@ public class DoryDrive extends DoryBase {
             }
         }
         return returnDir;
+    }
+
+    void stop() {
+        try {
+            directionalDrive(new Direction(0, 0));
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+    }
+    void drive(Direction direction) {
+        try {
+            directionalDrive(direction);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
     }
 }

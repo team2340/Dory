@@ -40,6 +40,7 @@ public class LogitechF310 implements Runnable {
     Button buttonStart;
     double min = 0.04;
     private String buttonPressed = "NO";
+    DoryLogger logger;
     
     String name;
 
@@ -61,6 +62,7 @@ public class LogitechF310 implements Runnable {
         buttonStart = new JoystickButton(joystick, DoryDefinitions.BUTTON_START);
         
         runner = new Thread(this, name);
+        logger = DoryLogger.getInstance();
         SmartDashboard.putBoolean(name, false);
     }
     
@@ -186,6 +188,7 @@ public class LogitechF310 implements Runnable {
     public void printState() {
         if (getX()) {
             System.out.println("F310 on " + port + " - X is pushed");
+           
         }
         if (getY()) {
             System.out.println("F310 on " + port + " - Y is pushed");

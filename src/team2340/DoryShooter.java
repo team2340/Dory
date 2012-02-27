@@ -39,11 +39,12 @@ public class DoryShooter extends DoryBase {
     boolean flipping = false;
     double currentRPM = 0.0;
     
-    public DoryShooter(LogitechF310 shootController, DoryCamera camera, SonicSensor sonicSensor) {
+    public DoryShooter(LogitechF310 shootController) { //, DoryCamera camera, SonicSensor sonicSensor) {
         super(DoryDefinitions.DORY_SHOOTER_NAME);
         controller = shootController;
-        this.camera = camera;
-        this.sonicSensor = sonicSensor;
+        //this.camera = camera;
+        //this.sonicSensor = sonicSensor;
+        /*
         SmartDashboard.putDouble(DoryDefinitions.SHOOTER_PROPORTIONAL, DoryDefinitions.SHOOTER_P_INITIAL);
         SmartDashboard.putDouble(DoryDefinitions.SHOOTER_INTEGRAL, DoryDefinitions.SHOOTER_I_INITIAL);
         SmartDashboard.putDouble(DoryDefinitions.SHOOTER_DIFFERENTIAL, DoryDefinitions.SHOOTER_D_INITIAL);
@@ -59,6 +60,7 @@ public class DoryShooter extends DoryBase {
         SmartDashboard.putInt(DoryDefinitions.SHOOTER_CONTROL_MODE, DoryDefinitions.SHOOTER_CONTROL_MODE_INITIAL);
         SmartDashboard.putDouble(DoryDefinitions.SHOOTER_RPM_TARGET, 0.0);
         controlMode = SmartDashboard.getInt(DoryDefinitions.SHOOTER_CONTROL_MODE, DoryDefinitions.SHOOTER_CONTROL_MODE_INITIAL);
+        */
         rightWheel = initializeCANJag(DoryDefinitions.SHOOTER_RIGHTWHEEL_JAG_ID, DoryDefinitions.CPR250);
         leftWheel = initializeCANJag(DoryDefinitions.SHOOTER_LEFTWHEEL_JAG_ID, DoryDefinitions.CPR250);
         SmartDashboard.putBoolean(DoryDefinitions.FLIPPER_AT_FORWARD_LIMIT, false);
@@ -93,24 +95,40 @@ public class DoryShooter extends DoryBase {
             if (isEnabled()) {
                 if (!flipping) {
                     try {
-                        updatePID();
-                        updateTargetToPeaks();
-                        updateControlMode();
-                        updateLimitStates();
-                        double distanceFromTargetCamera = camera.getDistanceFromTarget();
-                        double distanceFromTargetSonic = sonicSensor.getDistance();
-                        double distanceFromTargetAvg = (distanceFromTargetCamera + distanceFromTargetSonic) / 2;
-                        
-                        if (currentRPM == 0.0) {
-                            setRPM(3000.0);
+                        try {
+                            /*//              updatePID();
+                            //              updateTargetToPeaks();
+                            //              updateControlMode();
+                           //               updateLimitStates();
+                                          double distanceFromTargetCamera = camera.getDistanceFromTarget();
+                                          double distanceFromTargetSonic = sonicSensor.getDistance();
+                                          double distanceFromTargetAvg = (distanceFromTargetCamera + distanceFromTargetSonic) / 2;
+                                          
+                                          if (currentRPM == 0.0) {
+                                              setRPM(3000.0);
+                                          }
+                  */
+                                          rightWheel.setX(1);
+                        } catch (CANTimeoutException ex) {
+                            ex.printStackTrace();
                         }
-
+                        try {
+                            leftWheel.setX(-1);
+                        } catch (CANTimeoutException ex) {
+                            ex.printStackTrace();
+                        }
+                        
                         if (controller.getA()) {
-                            shoot(DoryDefinitions.BOTTOM_TARGET_HEIGHT_IN, bottomTargetToPeak, distanceFromTargetAvg);
+                            try {
+                                flipper.setX(.5);
+                            //    shoot(DoryDefinitions.BOTTOM_TARGET_HEIGHT_IN, bottomTargetToPeak, distanceFromTargetAvg);
+                            } catch (CANTimeoutException ex) {
+                                ex.printStackTrace();
+                            }
                         } else if (controller.getX() || controller.getB()) {
-                            shoot(DoryDefinitions.MIDDLE_TARGET_HEIGHT_IN, middleTargetToPeak, distanceFromTargetAvg);
+                            //shoot(DoryDefinitions.MIDDLE_TARGET_HEIGHT_IN, middleTargetToPeak, distanceFromTargetAvg);
                         } else if (controller.getY()) {
-                            shoot(DoryDefinitions.TOP_TARGET_HEIGHT_IN, topTargetToPeak, distanceFromTargetAvg);
+                            //shoot(DoryDefinitions.TOP_TARGET_HEIGHT_IN, topTargetToPeak, distanceFromTargetAvg);
                         }
 
                         runner.sleep(20);
@@ -230,7 +248,7 @@ public class DoryShooter extends DoryBase {
     private void setRPM(double rpm) {
         try {
             if (currentRPM != rpm) {
-                rightWheel.setX(rpm);
+                rightWheel.setX(-1 * rpm);
                 leftWheel.setX(rpm);
                 currentRPM = rpm;
             }

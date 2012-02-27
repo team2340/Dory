@@ -27,7 +27,7 @@ public class DoryBallCollection extends DoryBase {
         super(DoryDefinitions.DORY_BALL_COLLECTION);
         this.controller = controller;
         try {
-            topAnemone = new CANJaguar(DoryDefinitions.TOP_ANEMONE_JAG_ID);
+            //topAnemone = new CANJaguar(DoryDefinitions.TOP_ANEMONE_JAG_ID);
             bottomAnemone = new CANJaguar(DoryDefinitions.BOTTOM_ANEMONE_JAG_ID);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
@@ -64,7 +64,7 @@ public class DoryBallCollection extends DoryBase {
 
     private void updateSpeeds() {
         try {
-            topSpeed = SmartDashboard.getDouble(DoryDefinitions.TOP_ANEMONE_SPEED);
+          //  topSpeed = SmartDashboard.getDouble(DoryDefinitions.TOP_ANEMONE_SPEED);
             bottomSpeed = SmartDashboard.getDouble(DoryDefinitions.BOTTOM_ANEMONE_SPEED);
         } catch (NetworkTableKeyNotDefined ex) {
             ex.printStackTrace();
@@ -73,7 +73,8 @@ public class DoryBallCollection extends DoryBase {
 
     private void aquire() {
         try {
-            topAnemone.setX(topSpeed);
+       //     topAnemone.setX(-1 * topSpeed);
+            System.out.println("Set Speed: " + bottomSpeed);
             bottomAnemone.setX(bottomSpeed);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
@@ -82,7 +83,7 @@ public class DoryBallCollection extends DoryBase {
 
     private void repel() {
         try {
-            topAnemone.setX(-1 * topSpeed);
+         //   topAnemone.setX(-1 * topSpeed);
             bottomAnemone.setX(-1 * bottomSpeed);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
@@ -91,7 +92,7 @@ public class DoryBallCollection extends DoryBase {
 
     private void stop() {
         try {
-            topAnemone.setX(0);
+           // topAnemone.setX(0);
             bottomAnemone.setX(0);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();

@@ -13,10 +13,12 @@ public abstract class DoryBase implements Runnable {
     boolean enabled;
     
     Thread runner;
+    DoryLogger logger;
     
     DoryBase(String name) {
         enabled = false;
         runner = new Thread(this, name);
+        logger = DoryLogger.getInstance();
     }
     
     synchronized public void init() {
