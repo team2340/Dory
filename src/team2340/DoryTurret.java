@@ -26,6 +26,7 @@ public class DoryTurret extends DoryBase {
         controller = shooterController;
         try {
             turret = new CANJaguar(DoryDefinitions.TURRET_JAG_ID);
+            turret.configNeutralMode(CANJaguar.NeutralMode.kBrake);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
@@ -44,8 +45,12 @@ public class DoryTurret extends DoryBase {
                     try {
                         if ((controller.getDPad().x > 0) && turret.getForwardLimitOK()) {
                             turret.setX(speed);
+                            Timer.delay(.15);
+                            turret.setX(0.0);
                         } else if ((controller.getDPad().x < 0) && turret.getReverseLimitOK()) {
                             turret.setX(-1.0 * speed);
+                            Timer.delay(.15);
+                            turret.setX(0.0);
                         } else {
                             turret.setX(0.0);
                         }

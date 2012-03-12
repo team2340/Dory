@@ -27,7 +27,7 @@ public class DoryBallCollection extends DoryBase {
         super(DoryDefinitions.DORY_BALL_COLLECTION);
         this.controller = controller;
         try {
-            //topAnemone = new CANJaguar(DoryDefinitions.TOP_ANEMONE_JAG_ID);
+            topAnemone = new CANJaguar(DoryDefinitions.TOP_ANEMONE_JAG_ID);
             bottomAnemone = new CANJaguar(DoryDefinitions.BOTTOM_ANEMONE_JAG_ID);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
@@ -48,8 +48,10 @@ public class DoryBallCollection extends DoryBase {
                         aquire();
                     } else if (controller.getA()) {
                         repel();
-                    } else if (controller.getB() && controller.getX()) {
-                        stop();
+                    } else if (controller.getB()) {
+                        stopBottom();
+                    } else if (controller.getX()) {
+                      stopTop();   
                     }
                     runner.sleep(20);
                 } catch (InterruptedException ex) {
@@ -73,9 +75,9 @@ public class DoryBallCollection extends DoryBase {
 
     private void aquire() {
         try {
-       //     topAnemone.setX(-1 * topSpeed);
-            System.out.println("Set Speed: " + bottomSpeed);
-            bottomAnemone.setX(bottomSpeed);
+            topAnemone.setX(-1 * topSpeed);
+            
+            bottomAnemone.setX(-1 * bottomSpeed);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
@@ -83,20 +85,34 @@ public class DoryBallCollection extends DoryBase {
 
     private void repel() {
         try {
-         //   topAnemone.setX(-1 * topSpeed);
-            bottomAnemone.setX(-1 * bottomSpeed);
+            topAnemone.setX( topSpeed);
+            bottomAnemone.setX(  bottomSpeed);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
     }
 
     private void stop() {
+        stopTop();
+        stopBottom();
+    }
+    
+    private void stopTop() {
+        
         try {
-           // topAnemone.setX(0);
+            topAnemone.setX(0);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    private void stopBottom() {
+        try {
             bottomAnemone.setX(0);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
+        
     }
 
 }

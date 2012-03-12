@@ -38,10 +38,12 @@ public class DoryShooter extends DoryBase {
     double degToRadians = Math.PI / 180;
     boolean flipping = false;
     double currentRPM = 0.0;
+    DPadIncreaser dpad_shootingValue;
     
-    public DoryShooter(LogitechF310 shootController) { //, DoryCamera camera, SonicSensor sonicSensor) {
+    public DoryShooter(LogitechF310 shootController) { //, DoryCamera camera) { // SonicSensor sonicSensor) {
         super(DoryDefinitions.DORY_SHOOTER_NAME);
         controller = shootController;
+        dpad_shootingValue = new DPadIncreaser(shootController);
         //this.camera = camera;
         //this.sonicSensor = sonicSensor;
         /*
@@ -63,6 +65,7 @@ public class DoryShooter extends DoryBase {
         */
         rightWheel = initializeCANJag(DoryDefinitions.SHOOTER_RIGHTWHEEL_JAG_ID, DoryDefinitions.CPR250);
         leftWheel = initializeCANJag(DoryDefinitions.SHOOTER_LEFTWHEEL_JAG_ID, DoryDefinitions.CPR250);
+       
         SmartDashboard.putBoolean(DoryDefinitions.FLIPPER_AT_FORWARD_LIMIT, false);
         SmartDashboard.putBoolean(DoryDefinitions.FLIPPER_AT_REVERSE_LIMIT, false);
         try {
@@ -76,6 +79,7 @@ public class DoryShooter extends DoryBase {
         CANJaguar canJag = null;
         try {
             canJag = new CANJaguar(id, CANJaguar.ControlMode.kSpeed);
+    
             canJag.configEncoderCodesPerRev(clicksPerRev);
             canJag.setPID(p, i, d);
             canJag.setSpeedReference(CANJaguar.SpeedReference.kEncoder);
@@ -93,50 +97,61 @@ public class DoryShooter extends DoryBase {
         System.out.println("DoryShooter thread started!");
         while (runner.isAlive()) {
             if (isEnabled()) {
-                if (!flipping) {
-                    try {
+                if (isTeleOp()) {
+                    if (!flipping) {
+                        /*
+                         * updatePID(); // updateTargetToPeaks(); //
+                         * updateControlMode(); // updateLimitStates(); double
+                         * distanceFromTargetCamera =
+                         * camera.getDistanceFromTarget(); double
+                         * distanceFromTargetSonic = sonicSensor.getDistance();
+                         * double distanceFromTargetAvg =
+                         * (distanceFromTargetCamera + distanceFromTargetSonic)
+                         * / 2;
+                         *
+                         * if (currentRPM == 0.0) { setRPM(3000.0); }
+                         */
                         try {
-                            /*//              updatePID();
-                            //              updateTargetToPeaks();
-                            //              updateControlMode();
-                           //               updateLimitStates();
-                                          double distanceFromTargetCamera = camera.getDistanceFromTarget();
-                                          double distanceFromTargetSonic = sonicSensor.getDistance();
-                                          double distanceFromTargetAvg = (distanceFromTargetCamera + distanceFromTargetSonic) / 2;
-                                          
-                                          if (currentRPM == 0.0) {
-                                              setRPM(3000.0);
-                                          }
-                  */
-                                          rightWheel.setX(1);
-                        } catch (CANTimeoutException ex) {
-                            ex.printStackTrace();
-                        }
-                        try {
-                            leftWheel.setX(-1);
-                        } catch (CANTimeoutException ex) {
-                            ex.printStackTrace();
-                        }
-                        
-                        if (controller.getA()) {
-                            try {
-                                flipper.setX(.5);
-                            //    shoot(DoryDefinitions.BOTTOM_TARGET_HEIGHT_IN, bottomTargetToPeak, distanceFromTargetAvg);
-                            } catch (CANTimeoutException ex) {
-                                ex.printStackTrace();
-                            }
-                        } else if (controller.getX() || controller.getB()) {
-                            //shoot(DoryDefinitions.MIDDLE_TARGET_HEIGHT_IN, middleTargetToPeak, distanceFromTargetAvg);
-                        } else if (controller.getY()) {
-                            //shoot(DoryDefinitions.TOP_TARGET_HEIGHT_IN, topTargetToPeak, distanceFromTargetAvg);
-                        }
 
-                        runner.sleep(20);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
+                            if (controller.getA()) {
+                                logger.log(" Flip ");
+                                flip();
+                                //   camera.getDistanceFromTarget();
+
+                            } else if (controller.getX()) {
+                                TurnDrivesOn(DoryDefinitions.SHOOTER_MAX);
+                                //  camera.getDistanceFromTarget();
+                            } else if (controller.getB()) {
+                                TurnDrivesOff();
+
+                            } else if (controller.getRB()) {
+                                TurnDrivesOn(DoryDefinitions.SHOOTER_INCREASE);
+                            } else if (controller.getRT()) {
+                                TurnDrivesOn(DoryDefinitions.SHOOTER_DECREASE);
+                            }
+
+
+                            runner.sleep(20);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
                     }
+                } // end teleOp
+                else if (isAuto()) {
+                    System.out.println("autonomous shooter");
+                    TurnDrivesOn(DoryDefinitions.SHOOTER_MAX);
+                    Timer.delay(2);
+                    flip();
+                    Timer.delay(2);
+                    TurnDrivesOff();
+                    isAuto = false;
+                }
+                else
+                {
+                    System.out.println("not auto and not tele op");
                 }
             } else {
+                System.out.println("not enabled");
                 setRPM(0);
             }
         }
@@ -228,17 +243,12 @@ public class DoryShooter extends DoryBase {
         flip();
     }
 
-    synchronized private void flip() {
+    synchronized public void flip() {
         try {
-            flipper.setX(1.0);
-            while (flipper.getReverseLimitOK()) {
-                Timer.delay(5 / 1000);
-            }
             flipper.setX(-1.0);
-            while (flipper.getForwardLimitOK()) {
-                Timer.delay(5 / 1000);
-            }
-            flipper.setX(0.0);
+            Timer.delay(.70);
+            flipper.setX(0);
+            Timer.delay(1);
             flipping = false;
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
@@ -258,5 +268,84 @@ public class DoryShooter extends DoryBase {
 
         SmartDashboard.putDouble(DoryDefinitions.SHOOTER_RPM_ACTUAL, rpm);
     }
+
+    public void TurnDrivesOn(int speed) {
+        try {
+            if (speed == DoryDefinitions.SHOOTER_MAX)
+            {
+                leftWheel.setX(-0.8);
+                rightWheel.setX(0.8);
+                Timer.delay(.5);
+            }
+            else if (speed == DoryDefinitions.SHOOTER_INCREASE)
+            {
+                if (leftWheel.getX() != -1.0 && rightWheel.getX() != 1.0) {
+                leftWheel.setX(leftWheel.getX() - .1);
+                rightWheel.setX(rightWheel.getX() + .1);
+               
+                Timer.delay(.5);
+                }
+            }
+            else if (speed == DoryDefinitions.SHOOTER_DECREASE)
+            {
+                if (leftWheel.getX() != 0 || rightWheel.getX() != 0 )
+                {
+                leftWheel.setX(leftWheel.getX() + .1);
+                rightWheel.setX(rightWheel.getX() - .1);
+               
+                Timer.delay(.5);
+                }
+            }
+            else if(speed == DoryDefinitions.SHOOTER_AUTO)
+            {
+                leftWheel.setX(-0.8);
+                rightWheel.setX(0.8);
+                Timer.delay(2);
+                flip();
+                Timer.delay(2);
+                TurnDrivesOff();
+            }
+            logger.log(" Selection: " + speed + " LW : " + leftWheel.getX() + " RW : " + rightWheel.getX());
+            
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void TurnDrivesOff() {
+        try {
+            leftWheel.setX(0.0);
+            rightWheel.setX(0.0);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    synchronized public void setTeleOp(boolean _isTeleOp)
+    {
+        isTeleOp = _isTeleOp;
+        if(isTeleOp)
+        {
+            setTele();
+        }
+    }
+    
+    public void setTele() 
+    {
+        try {
+            leftWheel.disableControl();
+            leftWheel.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+            rightWheel.disableControl();
+            rightWheel.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+            flipper.disableControl();
+            flipper.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+            flipper.configNeutralMode(CANJaguar.NeutralMode.kBrake);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        
+    }
+
+  
 
 }

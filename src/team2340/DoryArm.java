@@ -43,6 +43,7 @@ public class DoryArm extends DoryBase {
             if (isEnabled()) {
                 try {
                     updateLimitStates();
+                    
                     if (controller.getDPad().y > 0.0 && armJag.getForwardLimitOK()) { // Check directions
                         liftRobot();
                     } else if (controller.getDPad().y < 0.0 && armJag.getReverseLimitOK()) {

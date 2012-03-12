@@ -44,6 +44,8 @@ public class DoryDrive extends DoryBase {
     }
 
     private void directionalDrive(Direction direction) throws CANTimeoutException {
+        direction.x *= .75;
+        direction.y *= .75;
         double mag = Math.sqrt(direction.y * direction.y + direction.x * direction.x);
         SmartDashboard.putDouble("Driving direction.x", direction.x);
         SmartDashboard.putDouble("Driving direction.y", direction.y);
@@ -91,28 +93,33 @@ public class DoryDrive extends DoryBase {
             backRight.setX(0);
             backLeft.setX(mag);
         } else if (controller.getDPad().getX() > 0) {
-            frontRight.setX(-1);
-            frontLeft.setX(-1);
-            backRight.setX(-1);
-            backLeft.setX(-1);
+            frontRight.setX(-0.6);
+            frontLeft.setX(-0.6);
+            backRight.setX(-0.6);
+            backLeft.setX(-0.6);
         } else if (controller.getDPad().getX() < 0) {
-            frontRight.setX(1);
-            frontLeft.setX(1);
-            backRight.setX(1);
-            backLeft.setX(1);
+            frontRight.setX(0.6);
+            frontLeft.setX(0.6);
+            backRight.setX(0.6);
+            backLeft.setX(0.6);
         } else {
             frontRight.setX(0);
             frontLeft.setX(0);
             backRight.setX(0);
             backLeft.setX(0);
         }
+        logger.log("FR : " + frontRight.getX() + " RL : " + frontLeft.getX() 
+                + " BR : " + backRight.getX() + " BL : " + backLeft.getX());
+        //System.out.println("FR : " + frontRight.getX() + " RL : " + frontLeft.getX() 
+        //        + " BR : " + backRight.getX() + " BL : " + backLeft.getX());
+        
     }
 
     private CANJaguar initializeCANJag(int id, int clicksPerRev) {
         CANJaguar canJag = null;
         try {
-            canJag = new CANJaguar(id);
-            /*
+          logger.log("initialize driveJag", id);
+           
             canJag = new CANJaguar(id, CANJaguar.ControlMode.kSpeed);
             canJag.configEncoderCodesPerRev(clicksPerRev);
             canJag.setPID(p, i, d);
@@ -120,8 +127,9 @@ public class DoryDrive extends DoryBase {
             canJag.changeControlMode(CANJaguar.ControlMode.kSpeed);
             canJag.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
             canJag.enableControl();
+           
             canJag.configNeutralMode(CANJaguar.NeutralMode.kCoast);
-  */
+  
   } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
@@ -227,4 +235,34 @@ public class DoryDrive extends DoryBase {
             ex.printStackTrace();
         }
     }
+    
+    
+    synchronized public void setTeleOp(boolean _isTeleOp)
+    {
+        isTeleOp = _isTeleOp;
+        if(isTeleOp)
+        {
+            setTele();
+        }
+    }
+    
+    public void setTele() {
+        try {
+            logger.log(" Set TELE ");
+            frontLeft.disableControl();
+            frontLeft.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+            frontRight.disableControl();
+            frontRight.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+            backLeft.disableControl();
+            backLeft.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+            backRight.disableControl();
+            backRight.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        
+    }
+    
+    
 }

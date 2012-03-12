@@ -30,7 +30,7 @@ public class RobotTemplate extends SimpleRobot {
     DoryTurret turret;
     
     DoryBallCollection ballCollection;
-    //DoryArm arm;
+    DoryArm arm;
     //DoryCamera camera;
     //SonicSensor sonicSensor;
     //GyroSensor gyroSensor;
@@ -38,52 +38,46 @@ public class RobotTemplate extends SimpleRobot {
     
     
     protected void robotInit() {
-        
-        System.out.println("Commander Dory reporting for duty!");
         logger = DoryLogger.getInstance();
+        System.out.println("Commander Dory reporting for duty!");
+        logger.log("Commander Dory Reporting for duty");
+        
         driveController = new LogitechF310(DoryDefinitions.DRIVE_CONTROLLER, 1);
-//        camera = new DoryCamera();
+       // camera = new DoryCamera();
         driveController.init();
         shooterController = new LogitechF310(DoryDefinitions.SHOOTER_CONTROLLER, 2);
         shooterController.init();
-//        
-        
+
 //        sonicSensor = new SonicSensor(DoryDefinitions.SONIC_SENSOR_ANALOG_CHANNEL);
 //        gyroSensor = new GyroSensor(DoryDefinitions.GYRO_SENSOR_CHANNEL);
 //        
-        //drive = new DoryDrive(driveController);
-        shooter = new DoryShooter(shooterController);//, camera, sonicSensor);
-      //  turret = new DoryTurret(shooterController);
+        drive = new DoryDrive(driveController);
+        shooter = new DoryShooter(shooterController);// camera, sonicSensor);
+        turret = new DoryTurret(shooterController);
         ballCollection = new DoryBallCollection(driveController);
-//        arm = new DoryArm(shooterController);
-//        
-        //drive.init();
-        shooter.init();
-      //  turret.init();
-        ballCollection.init();
-//        arm.init();
-//        
-        
+        arm = new DoryArm(shooterController);        
+       
     }
 
     protected void disabled() {
-        logger.close();
-       
-        //drive.disable();
-        shooter.disable();
-        //turret.disable();
-        ballCollection.disable();
-//        arm.disable();
-//     
+       logger.log(" Disabled () " );
+     
     }
 
-    void enable() {
-       // drive.enable();
-       shooter.enable();
-       // turret.enable();
+    protected void enable() {
+        logger.log(" Enabled () " );
+        drive.enable();
+        shooter.enable();
+        turret.enable();
         ballCollection.enable();
-//        arm.enable();
-//        
+        arm.enable();
+        
+        
+        drive.init();
+        shooter.init();
+        turret.init();
+        ballCollection.init();
+        arm.init();  
         
     }
 
@@ -91,18 +85,29 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
-        
+        //enable();
+        //Timer.delay(4);
+        //System.out.println("autonomous control - go");
+        //shooter.setAuto(true);
+        //while (isEnabled() && isAutonomous()) {
+        //    Timer.delay(0.02);
+        //}
     }
 
     /**
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
+        shooter.setAuto(false);
+        
+        drive.setTeleOp(true);
+        shooter.setTeleOp(true);
         enable();
+        
+        
         System.out.println("operator control - go!");
         while (isEnabled() && isOperatorControl()) {
             Timer.delay(0.02);
-
         }
     }
 }

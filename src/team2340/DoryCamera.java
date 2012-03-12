@@ -27,8 +27,10 @@ public class DoryCamera {
     int intensityLow;
     double percentOfImageLow;
     double percentOfImageHigh;
+    DoryLogger logger;
     
     public DoryCamera() {
+        logger = DoryLogger.getInstance();
         SmartDashboard.putInt(DoryDefinitions.CAMERA_H_LOW, DoryDefinitions.CAMERA_H_LOW_INITIAL);
         SmartDashboard.putInt(DoryDefinitions.CAMERA_H_HIGH, DoryDefinitions.CAMERA_H_HIGH_INITIAL);
         SmartDashboard.putInt(DoryDefinitions.CAMERA_S_LOW, DoryDefinitions.CAMERA_S_LOW_INITIAL);
@@ -106,7 +108,9 @@ public class DoryCamera {
     }
     
     public double getDistanceFromTarget() {
-        return analyzeImage();
+        double imageInfo = analyzeImage();
+        logger.log("getDistanceFromTarget" , imageInfo);
+        return imageInfo;
     }
     
 }

@@ -21,15 +21,11 @@ public class DoryLogger {
     private static DoryLogger logger = null;
 
     private DoryLogger() throws IOException {
-        file = (FileConnection) Connector.open("file://logs.txt");
+        file = (FileConnection) Connector.open("file://logs_" + Timer.getFPGATimestamp() + ".txt");
         if (!file.exists()) {
             System.out.println("No File");
             file.create();
-        } else if (file.exists()) {
-            System.out.println("Found a file delete old");
-            file.delete();
-            file.create();
-        }
+        } 
         os = file.openOutputStream();
         p = new PrintStream(os);
         p.println("Team 2340 Data Log: StartTime:" + Timer.getFPGATimestamp());
